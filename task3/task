@@ -1,0 +1,9 @@
+### Part 3: System Design and Automation Strategy (15 minutes)
+
+**Task:** Design a system that automates the following scenario:
+- Your company has several internal applications, and each generates log files. These logs must be periodically collected, processed (e.g., error logs should be flagged), and stored in a central location. Design an automation solution that:
+  - Retrieves the log files from multiple servers.
+  - Flags any errors found in the logs.
+  - Automatically backs up and archives the logs to an internal system or cloud storage.
+  - Optionally: Consider using CI/CD practices to ensure the automation runs smoothly.
+The candidate can describe this solution verbally or with diagrams.
