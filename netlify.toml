@@ -2,7 +2,10 @@
 [build]
   publish = "."
   functions = "netlify/functions"
-
+# Adicione este plugin para resolver o problema de dependências
+[[plugins]]
+  package = "@netlify/plugin-functions-install-core"
+  
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
