@@ -126,20 +126,20 @@
                 // Para desenvolvimento/demonstração, vamos usar dados estáticos
                 // Em produção, descomente a chamada fetch abaixo
                 
-                setTimeout(() => {
+                //setTimeout(() => {
                     // Dados simulados para demonstração
-                    const demoData = [
-                        {regiao: "ZONA LESTE", pontos: 2},
-                        {regiao: "CENTRO", pontos: 1},
-                        {regiao: "ZONA NORTE", pontos: 0},
-                        {regiao: "ZONA OESTE", pontos: 3},
-                        {regiao: "ZONA SUL", pontos: 1}
-                    ];
-                    updateTable(demoData);
-                    document.getElementById('loading').style.display = 'none';
-                }, 1000);
+                  //  const demoData = [
+                    //    {regiao: "ZONA LESTE", pontos: 2},
+                      //  {regiao: "CENTRO", pontos: 1},
+                      //  {regiao: "ZONA NORTE", pontos: 0},
+                      //  {regiao: "ZONA OESTE", pontos: 3},
+                      //  {regiao: "ZONA SUL", pontos: 1}
+                   // ];
+                   // updateTable(demoData);
+                   // document.getElementById('loading').style.display = 'none';
+               // }, 1000);
                 
-                /* Em produção, use este código para buscar dados reais
+                // Em produção, use este código para buscar dados reais
                 fetch(proxyUrl)
                     .then(response => {
                         if (!response.ok) {
