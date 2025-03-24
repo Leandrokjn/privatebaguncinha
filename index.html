@@ -3,283 +3,326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitor de Alagamentos SP</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+    <title>Monitoramento de Alagamentos - São Paulo</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
-            padding-top: 20px;
-            padding-bottom: 40px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9fc;
+            padding-top: 15px;
         }
-        .header {
-            margin-bottom: 20px;
-            background-color: #f8f9fa;
-            padding: 20px;
+        
+        .content-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-header {
+            background-color: #fff;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .table {
-            margin-top: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .status-0 {
-            background-color: #d4edda;
-        }
-        .status-1 {
-            background-color: #fff3cd;
-        }
-        .status-2 {
-            background-color: #ffe5d0;
-        }
-        .status-3plus {
-            background-color: #f8d7da;
-        }
-        .bot-info {
-            margin: 30px 0;
-            padding: 20px;
-            background-color: #e9ecef;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .update-time {
-            font-size: 0.8rem;
-            font-style: italic;
-            margin-top: 5px;
-        }
-        #error-message {
-            display: none;
-            margin-top: 20px;
-        }
-        .loading-spinner {
-            text-align: center;
-            margin: 40px 0;
-        }
-        .dashboard-summary {
+            padding: 15px 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
             margin-bottom: 20px;
         }
-        .summary-card {
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+        
+        .dashboard-title {
+            color: #3b5998;
+            margin-bottom: 5px;
         }
-        .summary-card:hover {
-            transform: translateY(-5px);
-        }
-        .point-details {
-            background-color: #f8f9fa;
-            border-left: 4px solid #ccc;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 4px;
+        
+        .last-update {
+            color: #666;
             font-size: 0.9rem;
         }
-        .point-address {
-            font-weight: 500;
+        
+        .status-card {
+            border-radius: 8px;
+            padding: 15px;
+            height: 100%;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s;
         }
+        
+        .status-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .status-0 {
+            background-color: #e8f5e9;
+        }
+        
+        .status-1 {
+            background-color: #fff8e1;
+        }
+        
+        .status-2 {
+            background-color: #fff3e0;
+        }
+        
+        .status-3plus {
+            background-color: #ffebee;
+        }
+        
         .water-level {
             display: inline-block;
-            padding: 2px 6px;
+            padding: 3px 6px;
             border-radius: 4px;
             font-size: 0.8rem;
-            font-weight: bold;
+            font-weight: 500;
         }
+        
         .level-baixo {
-            background-color: #cfe2ff;
-            color: #084298;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
         }
+        
         .level-medio {
-            background-color: #fff3cd;
-            color: #856404;
+            background-color: #fff8e1;
+            color: #ff8f00;
+            border: 1px solid #ffecb3;
         }
+        
         .level-alto {
-            background-color: #f8d7da;
-            color: #721c24;
+            background-color: #ffebee;
+            color: #d32f2f;
+            border: 1px solid #ffcdd2;
         }
+        
         .level-intransitavel {
-            background-color: #842029;
+            background-color: #4a148c;
             color: white;
+            border: 1px solid #6a1b9a;
         }
-        #filter-options {
-            margin-bottom: 20px;
+        
+        .filter-btn {
+            margin-right: 5px;
+            margin-bottom: 5px;
         }
+        
+        .stats-card {
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            height: 100%;
+        }
+        
+        .stats-icon {
+            font-size: 2rem;
+            padding: 15px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+        }
+        
+        .stats-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .stats-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
         .region-heading {
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .region-details {
-            margin-top: 10px;
+        
+        .region-heading h5 {
+            margin-bottom: 0;
         }
-        footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+        
+        .point-address {
+            font-weight: 500;
         }
+        
         .transport-info {
-            margin-top: 5px;
-            font-style: italic;
-            color: #495057;
-        }
-        .stats-card {
-            text-align: center;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            height: 100%;
-        }
-        .stats-card:hover {
-            transform: translateY(-5px);
-        }
-        .stats-card h2 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        .stats-card p {
-            color: #6c757d;
+            margin-top: 3px;
+            font-size: 0.8rem;
+            color: #666;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header text-center">
-            <h1><i class="fas fa-water text-primary me-2"></i>Monitor de Alagamentos São Paulo</h1>
-            <p class="lead">Monitoramento em tempo real dos pontos de alagamento com detalhes</p>
-            <div class="update-time" id="last-update"></div>
-        </div>
-
-        <div class="alert alert-danger" id="error-message" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>Erro ao buscar dados. Tente atualizar a página.
-        </div>
-
-        <div class="loading-spinner" id="loading">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Carregando...</span>
-            </div>
-            <p>Carregando dados...</p>
-        </div>
-
-        <!-- Cards de estatísticas -->
-        <div class="row dashboard-summary" id="stats-dashboard">
-            <div class="col-md-3">
-                <div class="stats-card bg-light">
-                    <h2 id="total-pontos">0</h2>
-                    <p>Total de Pontos</p>
+    <div class="container-fluid content-wrapper">
+        <!-- Header -->
+        <div class="dashboard-header mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="dashboard-title">
+                        <i class="fas fa-water text-primary me-2"></i>
+                        Monitoramento de Alagamentos - São Paulo
+                    </h1>
+                    <p class="last-update" id="last-update">Última atualização: Carregando...</p>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card bg-danger text-white">
-                    <h2 id="pontos-criticos">0</h2>
-                    <p>Pontos Críticos</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card bg-warning">
-                    <h2 id="tempo-medio">0</h2>
-                    <p>Média (min)</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card bg-info text-white">
-                    <h2 id="regiao-pior">-</h2>
-                    <p>Região mais afetada</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Regiões Monitoradas</h3>
-                        <button class="btn btn-light" id="refresh-btn">
-                            <i class="fas fa-sync-alt me-2"></i>Atualizar Dados
+                <div class="col-md-6 text-md-end">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-primary btn-sm" id="refresh-btn">
+                            <i class="fas fa-sync-alt me-1"></i>Atualizar
                         </button>
+                        <a href="https://www.cgesp.org/v3/alagamentos.jsp" target="_blank" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-external-link-alt me-1"></i>CGE-SP
+                        </a>
                     </div>
-                    <div class="card-body">
-                        <!-- Filtros -->
-                        <div id="filter-options">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="input-group">
-                                        <span class="input-group-text">Pesquisar</span>
-                                        <input type="text" class="form-control" id="search-input" placeholder="Buscar por região ou endereço...">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="btn-group w-100">
-                                        <button class="btn btn-outline-secondary filter-btn active" data-filter="all">Todos</button>
-                                        <button class="btn btn-outline-success filter-btn" data-filter="0">Sem Alagamentos</button>
-                                        <button class="btn btn-outline-warning filter-btn" data-filter="1">Atenção</button>
-                                        <button class="btn btn-outline-danger filter-btn" data-filter="critical">Críticos</button>
-                                    </div>
-                                </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Estatísticas -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-card bg-white p-3 text-center">
+                    <div class="stats-icon bg-primary text-white mx-auto">
+                        <i class="fas fa-water"></i>
+                    </div>
+                    <div class="stats-value" id="total-points">-</div>
+                    <div class="stats-text">Total de Pontos de Alagamento</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-card bg-white p-3 text-center">
+                    <div class="stats-icon bg-danger text-white mx-auto">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stats-value" id="critical-regions">-</div>
+                    <div class="stats-text">Regiões em Estado Crítico</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-card bg-white p-3 text-center">
+                    <div class="stats-icon bg-warning text-dark mx-auto">
+                        <i class="fas fa-car-crash"></i>
+                    </div>
+                    <div class="stats-value" id="highest-level">-</div>
+                    <div class="stats-text">Pontos Intransitáveis</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-card bg-white p-3 text-center">
+                    <div class="stats-icon bg-success text-white mx-auto">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stats-value" id="clear-regions">-</div>
+                    <div class="stats-text">Regiões Sem Alagamentos</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Conteúdo Principal -->
+        <div class="row">
+            <!-- Tabela de Alagamentos -->
+            <div class="col-md-5 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-list text-primary me-2"></i>
+                                Situação por Região
+                            </h5>
+                            <div class="input-group input-group-sm" style="width: 180px;">
+                                <input type="text" class="form-control" id="search-input" placeholder="Buscar região...">
+                                <button class="btn btn-outline-secondary" type="button" id="search-btn">
+                                    <i class="fas fa-search"></i>
+                                </button>
                             </div>
                         </div>
-                        
-                        <!-- Tabela principal -->
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-secondary filter-btn active" data-filter="all">Todos</button>
+                                <button type="button" class="btn btn-outline-success filter-btn" data-filter="0">Sem alagamentos</button>
+                                <button type="button" class="btn btn-outline-warning filter-btn" data-filter="1">1 ponto</button>
+                                <button type="button" class="btn btn-outline-warning filter-btn" data-filter="2">2 pontos</button>
+                                <button type="button" class="btn btn-outline-danger filter-btn" data-filter="critical">Crítico (2+)</button>
+                            </div>
+                        </div>
                         <div class="table-responsive">
-                            <table class="table table-bordered table-hover" id="alagamentos-table">
-                                <thead class="table-dark">
+                            <table class="table table-hover">
+                                <thead>
                                     <tr>
                                         <th>Região</th>
                                         <th>Pontos</th>
                                         <th>Status</th>
-                                        <th>Ações</th>
+                                        <th>Ação</th>
                                     </tr>
                                 </thead>
                                 <tbody id="alagamentos-body">
-                                    <!-- Dados serão inseridos aqui via JavaScript -->
+                                    <tr>
+                                        <td colspan="4" class="text-center py-3">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Carregando...</span>
+                                            </div>
+                                            <div class="mt-2">Carregando dados...</div>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
+            
+            <!-- Visualização detalhada -->
+            <div class="col-md-7 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-map-marked-alt text-primary me-2"></i>
+                            Detalhes dos Pontos de Alagamento
+                        </h5>
+                    </div>
+                    <div class="card-body" id="regions-details-container">
+                        <div id="no-details-message" class="text-center py-5">
+                            <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+                            <h5>Selecione uma região para ver detalhes</h5>
+                            <p class="text-muted">Clique no botão "Detalhes" ao lado de uma região para ver informações sobre os pontos de alagamento.</p>
+                        </div>
+                        <div id="regions-details"></div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <!-- Detalhes expandidos -->
-        <div id="regions-details">
-            <!-- Detalhes das regiões serão inseridos aqui -->
-        </div>
-
-        <div class="bot-info">
-            <h4><i class="fab fa-telegram text-info me-2"></i>Receba atualizações no Telegram</h4>
-            <p>Assine nosso canal para receber alertas quando houver alterações nos pontos de alagamento:</p>
-            <a href="https://t.me/alagamentos_sp_bot" class="btn btn-info" target="_blank">
-                <i class="fab fa-telegram me-2"></i>Assinar Canal no Telegram
-            </a>
-            <p class="mt-3">
-                <small>O bot envia alertas personalizados com base nas regiões que você escolher acompanhar e no nível de severidade dos alagamentos.</small>
-            </p>
-        </div>
-
-        <footer class="text-center text-muted">
-            <p>Dados obtidos do <a href="https://www.cgesp.org/v3/alagamentos.jsp" target="_blank">CGE - Centro de Gerenciamento de Emergências</a> da Prefeitura de São Paulo.</p>
-            <p>Este site não possui vínculo com órgãos oficiais e é um projeto independente.</p>
-            <p><small>Última atualização do site: 23/03/2025</small></p>
-        </footer>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // URL do CGE SP
-            const CGE_URL = "https://www.cgesp.org/v3/alagamentos.jsp?dataBusca=23%2F03%2F2025&enviaBusca=Buscar";
+            // API URL do CGE (Centro de Gerenciamento de Emergências)
+            const API_URL = 'https://api.cgespdev.com/api/alagamentos';
             
-            // Buscar dados ao carregar a página
-            fetchAlagamentosData();
+            // Elementos da interface
+            const refreshBtn = document.getElementById('refresh-btn');
+            const searchBtn = document.getElementById('search-btn');
+            const searchInput = document.getElementById('search-input');
+            const tableBody = document.getElementById('alagamentos-body');
+            const noDetailsMessage = document.getElementById('no-details-message');
             
-            // Configurar o botão de atualização
-            document.getElementById('refresh-btn').addEventListener('click', function() {
-                fetchAlagamentosData();
+            // Estatísticas
+            const totalPointsElement = document.getElementById('total-points');
+            const criticalRegionsElement = document.getElementById('critical-regions');
+            const highestLevelElement = document.getElementById('highest-level');
+            const clearRegionsElement = document.getElementById('clear-regions');
+            
+            // Event Listeners
+            refreshBtn.addEventListener('click', loadData);
+            searchBtn.addEventListener('click', function() {
+                searchTable(searchInput.value);
             });
-
-            // Configurar filtros
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    searchTable(searchInput.value);
+                }
+            });
+            
+            // Filtros de tabela
             document.querySelectorAll('.filter-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     // Remover classe active de todos os botões
@@ -290,253 +333,79 @@
                     // Adicionar classe active ao botão clicado
                     this.classList.add('active');
                     
-                    // Aplicar filtro
+                    // Filtrar a tabela
                     const filter = this.getAttribute('data-filter');
                     filterTable(filter);
                 });
             });
-
-            // Configurar busca
-            document.getElementById('search-input').addEventListener('keyup', function() {
-                searchTable(this.value);
-            });
-
-            // Função para buscar os dados de alagamentos
-            function fetchAlagamentosData() {
-                document.getElementById('loading').style.display = 'block';
-                document.getElementById('error-message').style.display = 'none';
+            
+            // Carregar dados iniciais
+            loadData();
+            
+            // Função para carregar dados da API
+            function loadData() {
+                // Exibir spinner de carregamento
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center py-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Carregando...</span>
+                            </div>
+                            <div class="mt-2">Carregando dados...</div>
+                        </td>
+                    </tr>
+                `;
                 
-                // Utilizar CORS proxy para acessar o site do CGE
-                const corsProxyUrl = "https://corsproxy.io/?";
-                const proxyUrl = corsProxyUrl + encodeURIComponent(CGE_URL);
-                
-                // Buscar dados reais
-                fetch(proxyUrl)
+                // Fazer requisição à API
+                fetch(API_URL)
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error('Falha na rede ou servidor');
+                            throw new Error('Erro ao buscar dados');
                         }
-                        return response.text();
+                        return response.json();
                     })
-                    .then(html => {
-                        const data = parseAlagamentosData(html);
+                    .then(data => {
+                        // Processar e exibir dados
                         updateTable(data);
                         updateDetailedView(data);
                         updateStatistics(data);
-                        document.getElementById('loading').style.display = 'none';
+                        
+                        // Atualizar timestamp
+                        document.getElementById('last-update').textContent = 'Última atualização: ' + new Date().toLocaleString('pt-BR');
                     })
                     .catch(error => {
-                        console.error('Erro ao buscar dados:', error);
-                        document.getElementById('error-message').style.display = 'block';
-                        document.getElementById('loading').style.display = 'none';
-                        
-                        // Em caso de erro, usar dados estáticos de demonstração
+                        console.error('Erro:', error);
+                        // Em caso de erro, usar dados de demonstração
                         useDemoData();
                     });
             }
             
-            // Parser para extrair dados do HTML do CGE
-            function parseAlagamentosData(html) {
-                // Criar um DOM a partir do HTML
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                
-                // Processar os dados extraídos da página do CGE
-                const regioes = {
-                    "ZONA NORTE": { regiao: "ZONA NORTE", pontos: 0, pontos_detalhes: [] },
-                    "ZONA SUL": { regiao: "ZONA SUL", pontos: 0, pontos_detalhes: [] },
-                    "ZONA LESTE": { regiao: "ZONA LESTE", pontos: 0, pontos_detalhes: [] },
-                    "ZONA OESTE": { regiao: "ZONA OESTE", pontos: 0, pontos_detalhes: [] },
-                    "CENTRO": { regiao: "CENTRO", pontos: 0, pontos_detalhes: [] },
-                    "MARGINAL TIETÊ": { regiao: "MARGINAL TIETÊ", pontos: 0, pontos_detalhes: [] },
-                    "MARGINAL PINHEIROS": { regiao: "MARGINAL PINHEIROS", pontos: 0, pontos_detalhes: [] }
-                };
-                
-                // Encontrar tabelas de alagamentos
-                const tables = doc.querySelectorAll('table');
-                
-                if (tables.length > 0) {
-                    // Normalmente a tabela de alagamentos é a primeira
-                    const rows = tables[0].querySelectorAll('tr');
-                    
-                    // Pular o cabeçalho
-                    for (let i = 1; i < rows.length; i++) {
-                        const cols = rows[i].querySelectorAll('td');
-                        
-                        if (cols.length >= 5) {
-                            // Extrair informações
-                            const local = cols[0].textContent.trim();
-                            const subprefeitura = cols[1].textContent.trim();
-                            const inicio = cols[2].textContent.trim();
-                            const situacao = cols[3].textContent.trim();
-                            
-                            // Determinar região baseado na subprefeitura
-                            let regiao = determineRegion(subprefeitura);
-                            
-                            // Se o local contiver "Marginal", ajustar a região
-                            if (local.includes("Marginal Tietê")) {
-                                regiao = "MARGINAL TIETÊ";
-                            } else if (local.includes("Marginal Pinheiros")) {
-                                regiao = "MARGINAL PINHEIROS";
-                            }
-                            
-                            if (regioes[regiao]) {
-                                // Determinar nível com base na situação
-                                let nivel = "baixo";
-                                if (situacao.includes("Intransitável")) {
-                                    nivel = "intransitavel";
-                                } else if (situacao.includes("Alto")) {
-                                    nivel = "alto";
-                                } else if (situacao.includes("Médio")) {
-                                    nivel = "medio";
-                                }
-                                
-                                // Calcular duração aproximada (aleatória para demonstração)
-                                const duracao = Math.floor(Math.random() * 90) + 15; // Entre 15 e 105 minutos
-                                
-                                regioes[regiao].pontos++;
-                                regioes[regiao].pontos_detalhes.push({
-                                    endereco: local,
-                                    bairro: subprefeitura,
-                                    inicio: inicio,
-                                    nivel: nivel,
-                                    duracao: duracao,
-                                    transportes: getRandomTransportInfo(nivel)
-                                });
-                            }
-                        }
-                    }
-                }
-                
-                // Converter o objeto em array
-                return Object.values(regioes);
-            }
-            
-            // Determinar região com base na subprefeitura
-            function determineRegion(subprefeitura) {
-                const norte = ["Jaçanã", "Tremembé", "Santana", "Tucuruvi", "Casa Verde", "Cachoeirinha", "Vila Guilherme", "Vila Maria", "Perus", "Pirituba", "Freguesia do Ó", "Brasilândia"];
-                const sul = ["Campo Limpo", "Vila Andrade", "Santo Amaro", "Campo Belo", "Jabaquara", "Cidade Ademar", "Pedreira", "Capela do Socorro", "Cidade Dutra", "Grajaú"];
-                const leste = ["Mooca", "Aricanduva", "Vila Formosa", "Vila Carrão", "Penha", "Vila Matilde", "Ermelino Matarazzo", "São Miguel", "Itaim Paulista", "Itaquera", "Guaianases", "São Mateus"];
-                const oeste = ["Lapa", "Vila Leopoldina", "Jaguaré", "Pinheiros", "Alto de Pinheiros", "Butantã", "Raposo Tavares", "Rio Pequeno"];
-                const centro = ["Sé", "República", "Santa Cecília", "Bom Retiro", "Consolação", "Bela Vista", "Liberdade", "Cambuci"];
-                
-                // Verificar em qual região a subprefeitura se encaixa
-                for (const sp of norte) {
-                    if (subprefeitura.includes(sp)) return "ZONA NORTE";
-                }
-                for (const sp of sul) {
-                    if (subprefeitura.includes(sp)) return "ZONA SUL";
-                }
-                for (const sp of leste) {
-                    if (subprefeitura.includes(sp)) return "ZONA LESTE";
-                }
-                for (const sp of oeste) {
-                    if (subprefeitura.includes(sp)) return "ZONA OESTE";
-                }
-                for (const sp of centro) {
-                    if (subprefeitura.includes(sp)) return "CENTRO";
-                }
-                
-                // Se não encontrou correspondência, verificar palavras-chave
-                if (subprefeitura.includes("Norte")) return "ZONA NORTE";
-                if (subprefeitura.includes("Sul")) return "ZONA SUL";
-                if (subprefeitura.includes("Leste")) return "ZONA LESTE";
-                if (subprefeitura.includes("Oeste")) return "ZONA OESTE";
-                if (subprefeitura.includes("Centro")) return "CENTRO";
-                
-                // Padrão
-                return "ZONA SUL";
-            }
-            
-            // Gerar informações de transporte aleatórias
-            function getRandomTransportInfo(nivel) {
-                const transportInfos = {
-                    baixo: [
-                        "Trânsito lento no local",
-                        "Acesso com lentidão",
-                        "Linhas de ônibus operando normalmente com atrasos pontuais"
-                    ],
-                    medio: [
-                        "Desvio por vias alternativas",
-                        "Linhas de ônibus com atrasos significativos",
-                        "Acesso ao metrô com dificuldade"
-                    ],
-                    alto: [
-                        "Linhas de ônibus desviadas",
-                        "Acesso ao local com grande dificuldade",
-                        "CPTM operando com velocidade reduzida"
-                    ],
-                    intransitavel: [
-                        "Acesso completamente bloqueado",
-                        "Linhas de ônibus suspensas no trecho",
-                        "Desvio obrigatório pelas vias adjacentes"
-                    ]
-                };
-                
-                // Escolher aleatoriamente
-                const options = transportInfos[nivel];
-                return options[Math.floor(Math.random() * options.length)];
-            }
-
             // Função para atualizar estatísticas
             function updateStatistics(data) {
-                // Calcular total de pontos
-                const totalPontos = data.reduce((total, item) => total + item.pontos, 0);
-                document.getElementById('total-pontos').textContent = totalPontos;
-                
-                // Calcular pontos críticos (nível alto ou intransitável)
-                let pontosCriticos = 0;
-                data.forEach(region => {
-                    region.pontos_detalhes.forEach(ponto => {
-                        if (ponto.nivel === 'alto' || ponto.nivel === 'intransitavel') {
-                            pontosCriticos++;
-                        }
-                    });
-                });
-                document.getElementById('pontos-criticos').textContent = pontosCriticos;
-                
-                // Calcular tempo médio de duração
-                let totalDuracao = 0;
-                let totalPontosComDuracao = 0;
-                
-                data.forEach(region => {
-                    region.pontos_detalhes.forEach(ponto => {
-                        if (ponto.duracao) {
-                            totalDuracao += ponto.duracao;
-                            totalPontosComDuracao++;
-                        }
-                    });
-                });
-                
-                const tempoMedio = totalPontosComDuracao > 0 ? Math.round(totalDuracao / totalPontosComDuracao) : 0;
-                document.getElementById('tempo-medio').textContent = tempoMedio;
-                
-                // Determinar região mais afetada
-                if (data.length > 0) {
-                    const regiaoMaisAfetada = data.reduce((prev, current) => 
-                        (prev.pontos > current.pontos) ? prev : current
-                    );
-                    
-                    if (regiaoMaisAfetada.pontos > 0) {
-                        document.getElementById('regiao-pior').textContent = regiaoMaisAfetada.regiao.split(' ')[1];
-                    } else {
-                        document.getElementById('regiao-pior').textContent = "Nenhuma";
+                const totalPoints = data.reduce((acc, region) => acc + region.pontos, 0);
+                const criticalRegions = data.filter(region => region.pontos >= 3).length;
+                const intransitaveis = data.reduce((acc, region) => {
+                    if (region.pontos_detalhes) {
+                        return acc + region.pontos_detalhes.filter(p => p.nivel === 'intransitavel').length;
                     }
-                }
-            }
-
-            // Função para atualizar a tabela com os dados recebidos
-            function updateTable(data) {
-                const tableBody = document.getElementById('alagamentos-body');
-                tableBody.innerHTML = '';
+                    return acc;
+                }, 0);
+                const clearRegions = data.filter(region => region.pontos === 0).length;
                 
-                // Ordenar por número de pontos (decrescente)
-                data.sort((a, b) => b.pontos - a.pontos);
+                totalPointsElement.textContent = totalPoints;
+                criticalRegionsElement.textContent = criticalRegions;
+                highestLevelElement.textContent = intransitaveis;
+                clearRegionsElement.textContent = clearRegions;
+            }
+            
+            // Função para atualizar a tabela principal
+            function updateTable(data) {
+                tableBody.innerHTML = '';
                 
                 data.forEach(item => {
                     const row = document.createElement('tr');
                     
-                    // Adicionar classe CSS com base no número de pontos
+                    // Adicionar classes baseadas no número de pontos
                     if (item.pontos === 0) {
                         row.className = 'status-0';
                         row.dataset.status = '0';
@@ -550,3 +419,193 @@
                         row.className = 'status-3plus';
                         row.dataset.status = '3plus';
                     }
+                    
+                    // Criar colunas
+                    row.innerHTML = `
+                        <td><strong>${item.regiao}</strong></td>
+                        <td>${item.pontos}</td>
+                        <td>${getStatusText(item.pontos)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary view-details-btn" data-region="${item.regiao}">
+                                <i class="fas fa-eye me-1"></i>Detalhes
+                            </button>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+                
+                // Adicionar event listeners para os botões de detalhes
+                document.querySelectorAll('.view-details-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const region = this.getAttribute('data-region');
+                        toggleRegionDetails(region);
+                    });
+                });
+            }
+            
+            // Obter texto de status baseado no número de pontos
+            function getStatusText(numPontos) {
+                if (numPontos === 0) return '<span class="badge bg-success">Sem alagamentos</span>';
+                if (numPontos === 1) return '<span class="badge bg-warning text-dark">1 ponto</span>';
+                if (numPontos === 2) return '<span class="badge bg-warning text-dark">2 pontos</span>';
+                return '<span class="badge bg-danger">Crítico - ' + numPontos + ' pontos</span>';
+            }
+            
+            // Função para mostrar/ocultar detalhes da região
+            function toggleRegionDetails(region) {
+                const detailsElement = document.getElementById(`details-${region.replace(/\s+/g, '-')}`);
+                
+                if (detailsElement) {
+                    // Se já existe, toggle
+                    if (detailsElement.style.display === 'none') {
+                        detailsElement.style.display = 'block';
+                    } else {
+                        detailsElement.style.display = 'none';
+                    }
+                }
+            }
+            
+            // Função para atualizar a visão detalhada
+            function updateDetailedView(data) {
+                const detailsContainer = document.getElementById('regions-details');
+                detailsContainer.innerHTML = '';
+                
+                data.forEach(item => {
+                    if (item.pontos > 0) {
+                        const regionDetails = document.createElement('div');
+                        regionDetails.className = 'card mb-3';
+                        regionDetails.id = `details-${item.regiao.replace(/\s+/g, '-')}`;
+                        regionDetails.style.display = 'none';
+                        
+                        let detailsContent = `
+                            <div class="card-header region-heading" data-region="${item.regiao}">
+                                <h5>
+                                    <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                                    ${item.regiao} - ${item.pontos} ponto(s) de alagamento
+                                </h5>
+                                <button class="btn btn-sm btn-outline-secondary close-details-btn">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="card-body region-details">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Endereço</th>
+                                                <th>Nível</th>
+                                                <th>Início</th>
+                                                <th>Duração</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                        `;
+                        
+                        item.pontos_detalhes.forEach(ponto => {
+                            const nivelClass = `level-${ponto.nivel}`;
+                            const nivelText = getNivelText(ponto.nivel);
+                            
+                            detailsContent += `
+                                <tr>
+                                    <td>
+                                        <div class="point-address">${ponto.endereco}</div>
+                                        <div class="small text-muted">${ponto.bairro}</div>
+                                        <div class="transport-info">
+                                            <i class="fas fa-bus me-1"></i>${ponto.transportes}
+                                        </div>
+                                    </td>
+                                    <td><span class="water-level ${nivelClass}">${nivelText}</span></td>
+                                    <td>${ponto.inicio}</td>
+                                    <td>${ponto.duracao} min</td>
+                                </tr>
+                            `;
+                        });
+                        
+                        detailsContent += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        `;
+                        
+                        regionDetails.innerHTML = detailsContent;
+                        detailsContainer.appendChild(regionDetails);
+                    }
+                });
+                
+                // Adicionar event listeners para fechar detalhes
+                document.querySelectorAll('.close-details-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const card = this.closest('.card');
+                        card.style.display = 'none';
+                    });
+                });
+                
+                // Adicionar event listeners para cabeçalhos de região
+                document.querySelectorAll('.region-heading').forEach(heading => {
+                    heading.addEventListener('click', function(e) {
+                        if (!e.target.closest('.close-details-btn')) {
+                            const regionCard = this.closest('.card');
+                            const regionBody = regionCard.querySelector('.region-details');
+                            
+                            if (regionBody.style.display === 'none') {
+                                regionBody.style.display = 'block';
+                            } else {
+                                regionBody.style.display = 'none';
+                            }
+                        }
+                    });
+                });
+            }
+            
+            // Função para converter nível em texto
+            function getNivelText(nivel) {
+                switch(nivel) {
+                    case 'baixo': return 'Baixo';
+                    case 'medio': return 'Médio';
+                    case 'alto': return 'Alto';
+                    case 'intransitavel': return 'Intransitável';
+                    default: return 'Desconhecido';
+                }
+            }
+            
+            // Função para filtrar a tabela
+            function filterTable(filter) {
+                const rows = document.querySelectorAll('#alagamentos-body tr');
+                
+                rows.forEach(row => {
+                    if (filter === 'all') {
+                        row.style.display = '';
+                    } else if (filter === 'critical') {
+                        if (row.dataset.status === '3plus' || row.dataset.status === '2') {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    } else {
+                        if (row.dataset.status === filter) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                });
+            }
+            
+            // Função para pesquisar na tabela
+            function searchTable(query) {
+                const rows = document.querySelectorAll('#alagamentos-body tr');
+                const lowercaseQuery = query.toLowerCase();
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(lowercaseQuery)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Função para usar dados de demonstração quan
