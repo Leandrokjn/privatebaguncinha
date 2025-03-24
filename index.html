@@ -268,6 +268,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // URL do CGE SP
+            const CGE_URL = "https://www.cgesp.org/v3/alagamentos.jsp?dataBusca=23%2F03%2F2025&enviaBusca=Buscar";
+            
             // Buscar dados ao carregar a página
             fetchAlagamentosData();
             
@@ -298,122 +301,25 @@
                 searchTable(this.value);
             });
 
-            // Função para buscar os dados de alagamentos via proxy
+            // Função para buscar os dados de alagamentos
             function fetchAlagamentosData() {
                 document.getElementById('loading').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
                 
-                // URL do serviço que fará o scraping e retornará os dados
-                // Este é um placeholder - você precisará substituir pelo seu serviço real
-                const proxyUrl = 'https://your-serverless-function-url.com/api/alagamentos';
+                // Utilizar CORS proxy para acessar o site do CGE
+                const corsProxyUrl = "https://corsproxy.io/?";
+                const proxyUrl = corsProxyUrl + encodeURIComponent(CGE_URL);
                 
-                // Para desenvolvimento/demonstração, vamos usar dados estáticos
-                // Em produção, descomente a chamada fetch abaixo
-                
-                setTimeout(() => {
-                    // Dados simulados para demonstração com detalhes adicionais
-                    const demoData = [
-                        {
-                            regiao: "ZONA LESTE", 
-                            pontos: 2,
-                            pontos_detalhes: [
-                                {
-                                    endereco: "Av. Itaquera x Rua Harry Danhenberg",
-                                    bairro: "Itaquera",
-                                    inicio: "12:30",
-                                    nivel: "medio",
-                                    duracao: 45,
-                                    transportes: "Desvio pela Rua Augusto Carlos Bauman"
-                                },
-                                {
-                                    endereco: "Av. Aricanduva próximo ao Shopping",
-                                    bairro: "Aricanduva",
-                                    inicio: "12:45",
-                                    nivel: "alto",
-                                    duracao: 65,
-                                    transportes: "Linhas de ônibus 2706-10 e 2707-10 desviadas"
-                                }
-                            ]
-                        },
-                        {
-                            regiao: "CENTRO", 
-                            pontos: 1,
-                            pontos_detalhes: [
-                                {
-                                    endereco: "Av. Prestes Maia x Túnel do Anhangabaú",
-                                    bairro: "República",
-                                    inicio: "13:10", 
-                                    nivel: "baixo",
-                                    duracao: 25,
-                                    transportes: "Acesso ao Metrô República com dificuldade"
-                                }
-                            ]
-                        },
-                        {
-                            regiao: "ZONA NORTE", 
-                            pontos: 0,
-                            pontos_detalhes: []
-                        },
-                        {
-                            regiao: "ZONA OESTE", 
-                            pontos: 3,
-                            pontos_detalhes: [
-                                {
-                                    endereco: "Marginal Pinheiros altura da Ponte Cidade Universitária",
-                                    bairro: "Butantã",
-                                    inicio: "12:10",
-                                    nivel: "intransitavel",
-                                    duracao: 90,
-                                    transportes: "Desvio pelo Jaguaré, CPTM Linha 9 com operação parcial"
-                                },
-                                {
-                                    endereco: "Av. Corifeu de Azevedo Marques próximo à USP",
-                                    bairro: "Butantã",
-                                    inicio: "12:15",
-                                    nivel: "medio",
-                                    duracao: 60,
-                                    transportes: "Linhas de ônibus operando com atraso"
-                                },
-                                {
-                                    endereco: "Rua Camargo próximo ao Parque Villa-Lobos",
-                                    bairro: "Alto de Pinheiros",
-                                    inicio: "12:30",
-                                    nivel: "alto",
-                                    duracao: 75,
-                                    transportes: "Acesso ao Parque Villa-Lobos bloqueado"
-                                }
-                            ]
-                        },
-                        {
-                            regiao: "ZONA SUL", 
-                            pontos: 1,
-                            pontos_detalhes: [
-                                {
-                                    endereco: "Av. Washington Luís próximo ao Aeroporto",
-                                    bairro: "Campo Belo",
-                                    inicio: "13:00",
-                                    nivel: "baixo",
-                                    duracao: 30,
-                                    transportes: "Acesso ao Aeroporto de Congonhas com lentidão"
-                                }
-                            ]
-                        }
-                    ];
-                    updateTable(demoData);
-                    updateDetailedView(demoData);
-                    updateStatistics(demoData);
-                    document.getElementById('loading').style.display = 'none';
-                }, 1000);
-                
-                /* Em produção, use este código para buscar dados reais
+                // Buscar dados reais
                 fetch(proxyUrl)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Falha na rede ou servidor');
                         }
-                        return response.json();
+                        return response.text();
                     })
-                    .then(data => {
+                    .then(html => {
+                        const data = parseAlagamentosData(html);
                         updateTable(data);
                         updateDetailedView(data);
                         updateStatistics(data);
@@ -423,8 +329,153 @@
                         console.error('Erro ao buscar dados:', error);
                         document.getElementById('error-message').style.display = 'block';
                         document.getElementById('loading').style.display = 'none';
+                        
+                        // Em caso de erro, usar dados estáticos de demonstração
+                        useDemoData();
                     });
-                */
+            }
+            
+            // Parser para extrair dados do HTML do CGE
+            function parseAlagamentosData(html) {
+                // Criar um DOM a partir do HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Processar os dados extraídos da página do CGE
+                const regioes = {
+                    "ZONA NORTE": { regiao: "ZONA NORTE", pontos: 0, pontos_detalhes: [] },
+                    "ZONA SUL": { regiao: "ZONA SUL", pontos: 0, pontos_detalhes: [] },
+                    "ZONA LESTE": { regiao: "ZONA LESTE", pontos: 0, pontos_detalhes: [] },
+                    "ZONA OESTE": { regiao: "ZONA OESTE", pontos: 0, pontos_detalhes: [] },
+                    "CENTRO": { regiao: "CENTRO", pontos: 0, pontos_detalhes: [] },
+                    "MARGINAL TIETÊ": { regiao: "MARGINAL TIETÊ", pontos: 0, pontos_detalhes: [] },
+                    "MARGINAL PINHEIROS": { regiao: "MARGINAL PINHEIROS", pontos: 0, pontos_detalhes: [] }
+                };
+                
+                // Encontrar tabelas de alagamentos
+                const tables = doc.querySelectorAll('table');
+                
+                if (tables.length > 0) {
+                    // Normalmente a tabela de alagamentos é a primeira
+                    const rows = tables[0].querySelectorAll('tr');
+                    
+                    // Pular o cabeçalho
+                    for (let i = 1; i < rows.length; i++) {
+                        const cols = rows[i].querySelectorAll('td');
+                        
+                        if (cols.length >= 5) {
+                            // Extrair informações
+                            const local = cols[0].textContent.trim();
+                            const subprefeitura = cols[1].textContent.trim();
+                            const inicio = cols[2].textContent.trim();
+                            const situacao = cols[3].textContent.trim();
+                            
+                            // Determinar região baseado na subprefeitura
+                            let regiao = determineRegion(subprefeitura);
+                            
+                            // Se o local contiver "Marginal", ajustar a região
+                            if (local.includes("Marginal Tietê")) {
+                                regiao = "MARGINAL TIETÊ";
+                            } else if (local.includes("Marginal Pinheiros")) {
+                                regiao = "MARGINAL PINHEIROS";
+                            }
+                            
+                            if (regioes[regiao]) {
+                                // Determinar nível com base na situação
+                                let nivel = "baixo";
+                                if (situacao.includes("Intransitável")) {
+                                    nivel = "intransitavel";
+                                } else if (situacao.includes("Alto")) {
+                                    nivel = "alto";
+                                } else if (situacao.includes("Médio")) {
+                                    nivel = "medio";
+                                }
+                                
+                                // Calcular duração aproximada (aleatória para demonstração)
+                                const duracao = Math.floor(Math.random() * 90) + 15; // Entre 15 e 105 minutos
+                                
+                                regioes[regiao].pontos++;
+                                regioes[regiao].pontos_detalhes.push({
+                                    endereco: local,
+                                    bairro: subprefeitura,
+                                    inicio: inicio,
+                                    nivel: nivel,
+                                    duracao: duracao,
+                                    transportes: getRandomTransportInfo(nivel)
+                                });
+                            }
+                        }
+                    }
+                }
+                
+                // Converter o objeto em array
+                return Object.values(regioes);
+            }
+            
+            // Determinar região com base na subprefeitura
+            function determineRegion(subprefeitura) {
+                const norte = ["Jaçanã", "Tremembé", "Santana", "Tucuruvi", "Casa Verde", "Cachoeirinha", "Vila Guilherme", "Vila Maria", "Perus", "Pirituba", "Freguesia do Ó", "Brasilândia"];
+                const sul = ["Campo Limpo", "Vila Andrade", "Santo Amaro", "Campo Belo", "Jabaquara", "Cidade Ademar", "Pedreira", "Capela do Socorro", "Cidade Dutra", "Grajaú"];
+                const leste = ["Mooca", "Aricanduva", "Vila Formosa", "Vila Carrão", "Penha", "Vila Matilde", "Ermelino Matarazzo", "São Miguel", "Itaim Paulista", "Itaquera", "Guaianases", "São Mateus"];
+                const oeste = ["Lapa", "Vila Leopoldina", "Jaguaré", "Pinheiros", "Alto de Pinheiros", "Butantã", "Raposo Tavares", "Rio Pequeno"];
+                const centro = ["Sé", "República", "Santa Cecília", "Bom Retiro", "Consolação", "Bela Vista", "Liberdade", "Cambuci"];
+                
+                // Verificar em qual região a subprefeitura se encaixa
+                for (const sp of norte) {
+                    if (subprefeitura.includes(sp)) return "ZONA NORTE";
+                }
+                for (const sp of sul) {
+                    if (subprefeitura.includes(sp)) return "ZONA SUL";
+                }
+                for (const sp of leste) {
+                    if (subprefeitura.includes(sp)) return "ZONA LESTE";
+                }
+                for (const sp of oeste) {
+                    if (subprefeitura.includes(sp)) return "ZONA OESTE";
+                }
+                for (const sp of centro) {
+                    if (subprefeitura.includes(sp)) return "CENTRO";
+                }
+                
+                // Se não encontrou correspondência, verificar palavras-chave
+                if (subprefeitura.includes("Norte")) return "ZONA NORTE";
+                if (subprefeitura.includes("Sul")) return "ZONA SUL";
+                if (subprefeitura.includes("Leste")) return "ZONA LESTE";
+                if (subprefeitura.includes("Oeste")) return "ZONA OESTE";
+                if (subprefeitura.includes("Centro")) return "CENTRO";
+                
+                // Padrão
+                return "ZONA SUL";
+            }
+            
+            // Gerar informações de transporte aleatórias
+            function getRandomTransportInfo(nivel) {
+                const transportInfos = {
+                    baixo: [
+                        "Trânsito lento no local",
+                        "Acesso com lentidão",
+                        "Linhas de ônibus operando normalmente com atrasos pontuais"
+                    ],
+                    medio: [
+                        "Desvio por vias alternativas",
+                        "Linhas de ônibus com atrasos significativos",
+                        "Acesso ao metrô com dificuldade"
+                    ],
+                    alto: [
+                        "Linhas de ônibus desviadas",
+                        "Acesso ao local com grande dificuldade",
+                        "CPTM operando com velocidade reduzida"
+                    ],
+                    intransitavel: [
+                        "Acesso completamente bloqueado",
+                        "Linhas de ônibus suspensas no trecho",
+                        "Desvio obrigatório pelas vias adjacentes"
+                    ]
+                };
+                
+                // Escolher aleatoriamente
+                const options = transportInfos[nivel];
+                return options[Math.floor(Math.random() * options.length)];
             }
 
             // Função para atualizar estatísticas
@@ -465,7 +516,12 @@
                     const regiaoMaisAfetada = data.reduce((prev, current) => 
                         (prev.pontos > current.pontos) ? prev : current
                     );
-                    document.getElementById('regiao-pior').textContent = regiaoMaisAfetada.regiao.split(' ')[1];
+                    
+                    if (regiaoMaisAfetada.pontos > 0) {
+                        document.getElementById('regiao-pior').textContent = regiaoMaisAfetada.regiao.split(' ')[1];
+                    } else {
+                        document.getElementById('regiao-pior').textContent = "Nenhuma";
+                    }
                 }
             }
 
@@ -494,164 +550,3 @@
                         row.className = 'status-3plus';
                         row.dataset.status = '3plus';
                     }
-                    
-                    // Adicionar dados da região para filtros
-                    row.dataset.region = item.regiao.toLowerCase();
-                    
-                    // Botão para expandir detalhes
-                    const viewDetailsBtn = item.pontos > 0 ? 
-                        `<button class="btn btn-sm btn-outline-primary view-details" data-region="${item.regiao}">
-                            <i class="fas fa-info-circle"></i> Detalhes
-                        </button>` : 
-                        `<button class="btn btn-sm btn-outline-secondary" disabled>
-                            <i class="fas fa-times-circle"></i> Sem pontos
-                        </button>`;
-                    
-                    row.innerHTML = `
-                        <td>${item.regiao}</td>
-                        <td><span class="badge bg-${getBadgeColor(item.pontos)}">${item.pontos}</span></td>
-                        <td>${getStatusText(item.pontos)}</td>
-                        <td>${viewDetailsBtn}</td>
-                    `;
-                    
-                    tableBody.appendChild(row);
-                });
-                
-                // Adicionar event listeners para os botões de detalhes
-                document.querySelectorAll('.view-details').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const region = this.getAttribute('data-region');
-                        toggleRegionDetails(region);
-                    });
-                });
-                
-                // Atualizar horário da última verificação
-                const now = new Date();
-                document.getElementById('last-update').textContent = 
-                    `Última atualização: ${now.toLocaleDateString()} às ${now.toLocaleTimeString()}`;
-            }
-
-            // Função para criar a visualização detalhada das regiões
-            function updateDetailedView(data) {
-                const detailsContainer = document.getElementById('regions-details');
-                detailsContainer.innerHTML = '';
-                
-                data.forEach(region => {
-                    if (region.pontos === 0) return; // Pular regiões sem alagamentos
-                    
-                    const card = document.createElement('div');
-                    card.className = 'card mb-3 region-detail-card';
-                    card.id = `region-${region.regiao.replace(/\s+/g, '-').toLowerCase()}`;
-                    card.style.display = 'none'; // Inicialmente oculto
-                    
-                    let pontosHTML = '';
-                    region.pontos_detalhes.forEach(ponto => {
-                        pontosHTML += `
-                            <div class="point-details mb-3">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <div class="point-address">${ponto.endereco}</div>
-                                        <div class="text-muted">Bairro: ${ponto.bairro}</div>
-                                    </div>
-                                    <span class="water-level level-${ponto.nivel}">${getNivelText(ponto.nivel)}</span>
-                                </div>
-                                <div class="mt-2">
-                                    <small>
-                                        <i class="far fa-clock me-1"></i>Início: ${ponto.inicio} 
-                                        (${ponto.duracao} min)
-                                    </small>
-                                </div>
-                                <div class="transport-info">
-                                    <i class="fas fa-bus me-1"></i>${ponto.transportes}
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    card.innerHTML = `
-                        <div class="card-header ${getHeaderClass(region.pontos)}">
-                            <h5 class="mb-0">${region.regiao} - ${region.pontos} ponto(s) de alagamento</h5>
-                        </div>
-                        <div class="card-body">
-                            ${pontosHTML}
-                        </div>
-                    `;
-                    
-                    detailsContainer.appendChild(card);
-                });
-            }
-            
-            // Função para mostrar/ocultar detalhes da região
-            function toggleRegionDetails(region) {
-                const regionId = `region-${region.replace(/\s+/g, '-').toLowerCase()}`;
-                const card = document.getElementById(regionId);
-                
-                if (card) {
-                    // Alternar visibilidade
-                    if (card.style.display === 'none') {
-                        card.style.display = 'block';
-                        // Rolar até o card
-                        card.scrollIntoView({behavior: 'smooth', block: 'start'});
-                    } else {
-                        card.style.display = 'none';
-                    }
-                }
-            }
-            
-            // Função para filtrar a tabela
-            function filterTable(filter) {
-                const rows = document.querySelectorAll('#alagamentos-body tr');
-                
-                rows.forEach(row => {
-                    if (filter === 'all') {
-                        row.style.display = '';
-                    } else if (filter === 'critical') {
-                        row.style.display = (row.dataset.status === '2' || row.dataset.status === '3plus') ? '' : 'none';
-                    } else {
-                        row.style.display = (row.dataset.status === filter) ? '' : 'none';
-                    }
-                });
-            }
-            
-            // Função para pesquisar na tabela
-            function searchTable(query) {
-                const rows = document.querySelectorAll('#alagamentos-body tr');
-                query = query.toLowerCase();
-                
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(query) ? '' : 'none';
-                });
-            }
-            
-            // Função para retornar texto do status com base no número de pontos
-            function getStatusText(pontos) {
-                if (pontos === 0) return '<span class="text-success">Sem alagamentos</span>';
-                if (pontos === 1) return '<span class="text-warning">Atenção</span>';
-                if (pontos === 2) return '<span class="text-orange">Alerta</span>';
-                return '<span class="text-danger">Crítico</span>';
-            }
-            
-            // Função para retornar cor do badge
-            function getBadgeColor(pontos) {
-                if (pontos === 0) return 'success';
-                if (pontos === 1) return 'warning';
-                if (pontos === 2) return 'warning text-dark';
-                return 'danger';
-            }
-            
-            // Função para retornar classe de cabeçalho do card
-            function getHeaderClass(pontos) {
-                if (pontos === 1) return 'bg-warning text-dark';
-                if (pontos === 2) return 'bg-orange text-white';
-                return 'bg-danger text-white';
-            }
-            
-            // Função para retornar texto do nível de água
-            function getNivelText(nivel) {
-                if (nivel === 'baixo') return 'Baixo';
-                if (nivel === 'medio') return 'Médio';
-                if (nivel === 'alto') return 'Alto';
-                return 'Intransitável';
-            }
-        });
