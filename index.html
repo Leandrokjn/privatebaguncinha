@@ -7,7 +7,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            padding: 20px;
+            padding-top: 20px;
+            padding-bottom: 40px;
         }
         .header {
             margin-bottom: 20px;
@@ -15,24 +16,45 @@
         .table {
             margin-top: 20px;
         }
-        .alerta-vermelho {
+        .status-0 {
+            background-color: #d4edda;
+        }
+        .status-1 {
+            background-color: #fff3cd;
+        }
+        .status-2 {
+            background-color: #ffe5d0;
+        }
+        .status-3plus {
             background-color: #f8d7da;
         }
-        .loading-spinner {
-            text-align: center;
-            margin: 20px 0;
+        .bot-info {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+        .update-time {
+            font-size: 0.8rem;
+            font-style: italic;
+            margin-top: 5px;
         }
         #error-message {
             display: none;
             margin-top: 20px;
+        }
+        .loading-spinner {
+            text-align: center;
+            margin: 40px 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header text-center">
-            <h1>Alertas Ativos de Alagamento - São Paulo</h1>
-            <p class="lead">Somente alertas ativos com status crítico</p>
+            <h1>Monitor de Alagamentos São Paulo</h1>
+            <p class="lead">Monitoramento de alertas ativos (status crítico)</p>
+            <div class="update-time" id="last-update"></div>
         </div>
 
         <div class="alert alert-danger" id="error-message" role="alert">
@@ -46,81 +68,102 @@
             <p>Carregando dados...</p>
         </div>
 
-        <table class="table table-bordered table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>Região</th>
-                    <th>Rua/Avenida</th>
-                    <th>Nível de Criticidade</th>
-                </tr>
-            </thead>
-            <tbody id="alertas-ativos">
-                <!-- Dados serão preenchidos via JavaScript -->
-            </tbody>
-        </table>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3>Regiões Monitoradas - Alertas Ativos</h3>
+                    <button class="btn btn-primary" id="refresh-btn">Atualizar Dados</button>
+                </div>
+                
+                <table class="table table-bordered table-hover" id="alagamentos-table">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Região</th>
+                            <th>Rua/Avenida</th>
+                            <th>Nível de Criticidade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alagamentos-body">
+                        <!-- Dados dinâmicos via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-        <footer class="text-center text-muted mt-4">
-            <p>Dados obtidos do <a href="https://www.cgesp.org/v3/alagamentos.jsp" target="_blank">CGE - Prefeitura de São Paulo</a>.</p>
+        <footer class="text-center text-muted">
+            <p>Dados obtidos do <a href="https://www.cgesp.org/v3/alagamentos.jsp" target="_blank">CGE - Centro de Gerenciamento de Emergências</a> da Prefeitura de São Paulo.</p>
+            <p>Este site não possui vínculo com órgãos oficiais e é um projeto independente.</p>
         </footer>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchAlertasAtivos();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Buscar dados ao carregar a página
+            fetchAlagamentosData();
+            
+            // Configurar o botão de atualização
+            document.getElementById('refresh-btn').addEventListener('click', function() {
+                fetchAlagamentosData();
+            });
 
-            function fetchAlertasAtivos() {
+            // Função para buscar os dados de alagamentos via proxy
+            function fetchAlagamentosData() {
                 document.getElementById('loading').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
-
-                // URL simulada para buscar dados via API ou scraping
-                const apiUrl = 'https://seu-servico-api.com/alagamentos';
-
-                // Dados simulados para demonstração
+                
+                // URL do serviço para busca de dados reais (ajuste conforme necessário)
+                const proxyUrl = 'https://seu-servico-api.com/alagamentos';
+                
+                // Dados simulados para demonstração (substituir pela chamada fetch em produção)
                 setTimeout(() => {
                     const demoData = [
                         { regiao: "Zona Norte", rua: "AV ZAKI NARCHI", nivel: "Crítico" },
                         { regiao: "Zona Norte", rua: "MARGINAL TIETE ASCB CENTRAL", nivel: "Crítico" }
                     ];
-
-                    atualizarTabela(demoData);
+                    updateTable(demoData);
                     document.getElementById('loading').style.display = 'none';
                 }, 1000);
-
+                
                 /*
-                fetch(apiUrl)
+                fetch(proxyUrl)
                     .then(response => {
-                        if (!response.ok) throw new Error('Erro na busca dos dados.');
+                        if (!response.ok) throw new Error('Falha na rede ou servidor');
                         return response.json();
                     })
                     .then(data => {
                         const alertasAtivos = data.filter(item => item.nivel === "Crítico");
-                        atualizarTabela(alertasAtivos);
+                        updateTable(alertasAtivos);
                         document.getElementById('loading').style.display = 'none';
                     })
                     .catch(error => {
-                        console.error(error);
+                        console.error('Erro ao buscar dados:', error);
                         document.getElementById('error-message').style.display = 'block';
                         document.getElementById('loading').style.display = 'none';
                     });
                 */
             }
 
-            function atualizarTabela(dados) {
-                const tabela = document.getElementById('alertas-ativos');
-                tabela.innerHTML = '';
+            // Função para atualizar a tabela com os dados filtrados
+            function updateTable(data) {
+                const tableBody = document.getElementById('alagamentos-body');
+                tableBody.innerHTML = '';
 
-                dados.forEach(item => {
+                data.forEach(item => {
                     const row = document.createElement('tr');
-                    row.classList.add('alerta-vermelho');
-
+                    row.className = 'status-3plus';
                     row.innerHTML = `
                         <td>${item.regiao}</td>
                         <td>${item.rua}</td>
                         <td>${item.nivel}</td>
                     `;
-
-                    tabela.appendChild(row);
+                    tableBody.appendChild(row);
                 });
+
+                // Atualizar horário da última verificação
+                const now = new Date();
+                document.getElementById('last-update').textContent = 
+                    `Última atualização: ${now.toLocaleDateString()} às ${now.toLocaleTimeString()}`;
             }
         });
     </script>
