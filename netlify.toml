@@ -1,6 +1,5 @@
 # Arquivo de configuração para Netlify
 # Salvar como netlify.toml na raiz do projeto
-
 [build]
   # Diretório onde está o site estático
   publish = "."
@@ -8,6 +7,10 @@
   # command = "npm run build"
   # Diretório onde estão as funções serverless
   functions = "netlify/functions"
+
+# Plugin para instalar as dependências das funções
+[[plugins]]
+  package = "@netlify/plugin-functions-install-core"
 
 # Configuração de CORS para as funções serverless
 [[headers]]
