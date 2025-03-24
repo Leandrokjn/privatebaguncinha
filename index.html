@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitor de Alagamentos SP</title>
+    <title>Monitor de Alagamentos SP - Alertas Ativos</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            padding-top: 20px;
-            padding-bottom: 40px;
+            padding: 20px;
         }
         .header {
             margin-bottom: 20px;
@@ -16,45 +15,24 @@
         .table {
             margin-top: 20px;
         }
-        .status-0 {
-            background-color: #d4edda;
-        }
-        .status-1 {
-            background-color: #fff3cd;
-        }
-        .status-2 {
-            background-color: #ffe5d0;
-        }
-        .status-3plus {
+        .alerta-vermelho {
             background-color: #f8d7da;
         }
-        .bot-info {
-            margin: 30px 0;
-            padding: 20px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-        }
-        .update-time {
-            font-size: 0.8rem;
-            font-style: italic;
-            margin-top: 5px;
+        .loading-spinner {
+            text-align: center;
+            margin: 20px 0;
         }
         #error-message {
             display: none;
             margin-top: 20px;
-        }
-        .loading-spinner {
-            text-align: center;
-            margin: 40px 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header text-center">
-            <h1>Monitor de Alagamentos São Paulo</h1>
-            <p class="lead">Monitoramento em tempo real dos pontos de alagamento</p>
-            <div class="update-time" id="last-update"></div>
+            <h1>Alertas Ativos de Alagamento - São Paulo</h1>
+            <p class="lead">Somente alertas ativos com status crítico</p>
         </div>
 
         <div class="alert alert-danger" id="error-message" role="alert">
@@ -68,140 +46,81 @@
             <p>Carregando dados...</p>
         </div>
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h3>Regiões Monitoradas</h3>
-                    <button class="btn btn-primary" id="refresh-btn">Atualizar Dados</button>
-                </div>
-                
-                <table class="table table-bordered table-hover" id="alagamentos-table">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Região</th>
-                            <th>Pontos de Alagamento</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="alagamentos-body">
-                        <!-- Dados serão inseridos aqui via JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Região</th>
+                    <th>Rua/Avenida</th>
+                    <th>Nível de Criticidade</th>
+                </tr>
+            </thead>
+            <tbody id="alertas-ativos">
+                <!-- Dados serão preenchidos via JavaScript -->
+            </tbody>
+        </table>
 
-        <div class="bot-info">
-            <h4>Receba atualizações no Telegram</h4>
-            <p>Assine nosso canal para receber alertas quando houver regiões com 2 pontos de alagamento:</p>
-            <a href="https://t.me/alagamentos_sp_bot" class="btn btn-info" target="_blank">Assinar Canal no Telegram</a>
-            <p class="mt-3"><small>O bot envia alertas quando qualquer região atinge exatamente 2 pontos de alagamento.</small></p>
-        </div>
-
-        <footer class="text-center text-muted">
-            <p>Dados obtidos do <a href="https://www.cgesp.org/v3/alagamentos.jsp" target="_blank">CGE - Centro de Gerenciamento de Emergências</a> da Prefeitura de São Paulo.</p>
-            <p>Este site não possui vínculo com órgãos oficiais e é um projeto independente.</p>
+        <footer class="text-center text-muted mt-4">
+            <p>Dados obtidos do <a href="https://www.cgesp.org/v3/alagamentos.jsp" target="_blank">CGE - Prefeitura de São Paulo</a>.</p>
         </footer>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Buscar dados ao carregar a página
-            fetchAlagamentosData();
-            
-            // Configurar o botão de atualização
-            document.getElementById('refresh-btn').addEventListener('click', function() {
-                fetchAlagamentosData();
-            });
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAlertasAtivos();
 
-            // Função para buscar os dados de alagamentos via proxy
-            function fetchAlagamentosData() {
+            function fetchAlertasAtivos() {
                 document.getElementById('loading').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
-                
-                // URL do serviço que fará o scraping e retornará os dados
-                // Este é um placeholder - você precisará substituir pelo seu serviço real
-                const proxyUrl = 'https://your-serverless-function-url.com/api/alagamentos';
-                
-                // Para desenvolvimento/demonstração, vamos usar dados estáticos
-                // Em produção, descomente a chamada fetch abaixo
-                
+
+                // URL simulada para buscar dados via API ou scraping
+                const apiUrl = 'https://seu-servico-api.com/alagamentos';
+
+                // Dados simulados para demonstração
                 setTimeout(() => {
-                    // Dados simulados para demonstração
                     const demoData = [
-                        {regiao: "ZONA LESTE", pontos: 2},
-                        {regiao: "CENTRO", pontos: 1},
-                        {regiao: "ZONA NORTE", pontos: 0},
-                        {regiao: "ZONA OESTE", pontos: 3},
-                        {regiao: "ZONA SUL", pontos: 1}
+                        { regiao: "Zona Norte", rua: "AV ZAKI NARCHI", nivel: "Crítico" },
+                        { regiao: "Zona Norte", rua: "MARGINAL TIETE ASCB CENTRAL", nivel: "Crítico" }
                     ];
-                    updateTable(demoData);
+
+                    atualizarTabela(demoData);
                     document.getElementById('loading').style.display = 'none';
                 }, 1000);
-                
-                /* Em produção, use este código para buscar dados reais
-                fetch(proxyUrl)
+
+                /*
+                fetch(apiUrl)
                     .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Falha na rede ou servidor');
-                        }
+                        if (!response.ok) throw new Error('Erro na busca dos dados.');
                         return response.json();
                     })
                     .then(data => {
-                        updateTable(data);
+                        const alertasAtivos = data.filter(item => item.nivel === "Crítico");
+                        atualizarTabela(alertasAtivos);
                         document.getElementById('loading').style.display = 'none';
                     })
                     .catch(error => {
-                        console.error('Erro ao buscar dados:', error);
+                        console.error(error);
                         document.getElementById('error-message').style.display = 'block';
                         document.getElementById('loading').style.display = 'none';
                     });
                 */
             }
 
-            // Função para atualizar a tabela com os dados recebidos
-            function updateTable(data) {
-                const tableBody = document.getElementById('alagamentos-body');
-                tableBody.innerHTML = '';
-                
-                // Ordenar por número de pontos (decrescente)
-                data.sort((a, b) => b.pontos - a.pontos);
-                
-                data.forEach(item => {
+            function atualizarTabela(dados) {
+                const tabela = document.getElementById('alertas-ativos');
+                tabela.innerHTML = '';
+
+                dados.forEach(item => {
                     const row = document.createElement('tr');
-                    
-                    // Adicionar classe CSS com base no número de pontos
-                    if (item.pontos === 0) {
-                        row.className = 'status-0';
-                    } else if (item.pontos === 1) {
-                        row.className = 'status-1';
-                    } else if (item.pontos === 2) {
-                        row.className = 'status-2';
-                    } else {
-                        row.className = 'status-3plus';
-                    }
-                    
+                    row.classList.add('alerta-vermelho');
+
                     row.innerHTML = `
                         <td>${item.regiao}</td>
-                        <td>${item.pontos}</td>
-                        <td>${getStatusText(item.pontos)}</td>
+                        <td>${item.rua}</td>
+                        <td>${item.nivel}</td>
                     `;
-                    
-                    tableBody.appendChild(row);
+
+                    tabela.appendChild(row);
                 });
-                
-                // Atualizar horário da última verificação
-                const now = new Date();
-                document.getElementById('last-update').textContent = 
-                    `Última atualização: ${now.toLocaleDateString()} às ${now.toLocaleTimeString()}`;
-            }
-            
-            // Função para retornar texto do status com base no número de pontos
-            function getStatusText(pontos) {
-                if (pontos === 0) return 'Sem alagamentos';
-                if (pontos === 1) return 'Atenção';
-                if (pontos === 2) return 'Alerta';
-                return 'Crítico';
             }
         });
     </script>
