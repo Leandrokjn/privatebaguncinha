@@ -1,0 +1,25 @@
+# Arquivo de configuração para Netlify
+# Salvar como netlify.toml na raiz do projeto
+
+[build]
+  # Diretório onde está o site estático
+  publish = "."
+  # Comando para construir o site (se necessário)
+  # command = "npm run build"
+  # Diretório onde estão as funções serverless
+  functions = "netlify/functions"
+
+# Configuração de CORS para as funções serverless
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"
+
+# Redirecionamento para as funções serverless
+[[redirects]]
+  from = "/api/alagamentos"
+  to = "/.netlify/functions/alagamentos"
+  status = 200
+  force = true
